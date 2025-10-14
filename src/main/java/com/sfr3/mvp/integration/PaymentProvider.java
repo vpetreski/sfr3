@@ -1,6 +1,7 @@
 package com.sfr3.mvp.integration;
 
 import com.sfr3.mvp.model.Lease;
+
 import java.math.BigDecimal;
 
 public interface PaymentProvider {
