@@ -1,0 +1,94 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>SFR3 MVP</title>
+  <style>
+    body { background:#0f1115; color:#e6e6e6; font-family: Inter, Arial, sans-serif; margin:0; padding:24px; }
+    h1 { margin:0 0 12px 0; font-weight:600; }
+    .bar { display:flex; gap:12px; margin-bottom:16px; }
+    button { background:#2563eb; color:#fff; border:none; padding:10px 14px; border-radius:8px; cursor:pointer; }
+    button:hover { background:#1d4ed8; }
+    table { width:100%; border-collapse:collapse; margin-top:8px; }
+    th, td { border-bottom:1px solid #273043; padding:10px; text-align:left; }
+    th { color:#9aa4b2; font-weight:600; }
+    .tag { padding:2px 8px; border-radius:999px; font-size:12px; }
+    .ok { background:#064e3b; color:#a7f3d0; }
+    .fail { background:#7f1d1d; color:#fecaca; }
+    .pending { background:#7c2d12; color:#fed7aa; }
+    .muted { color:#9aa4b2; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  </style>
+</head>
+<body>
+  <h1>SFR3 MVP — Rent Payments</h1>
+  <div class="bar">
+    <button onclick="runScheduler()">Run Scheduled Payments</button>
+    <button onclick="loadLeases()">Refresh</button>
+    <span id="msg" class="muted"></span>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Tenant</th>
+        <th>Property</th>
+        <th>Rent</th>
+        <th>Autopay</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+
+<script>
+async function loadLeases(){
+  const r = await fetch('/api/leases');
+  const data = await r.json();
+  const tbody = document.getElementById('rows');
+  tbody.innerHTML = '';
+  data.forEach(l => {
+    const tr = document.createElement('tr');
+    const status = l.lastPaymentStatus || 'NONE';
+    let pill = '<span class="tag muted">Not paid</span>';
+    if(status === 'SUCCESS') pill = '<span class="tag ok">Success</span>';
+    if(status === 'FAILED') pill = '<span class="tag fail">Failed</span>';
+    if(status === 'PENDING') pill = '<span class="tag pending">Pending</span>';
+    const action = (!l.autoPayEnabled || status==='FAILED')
+      ? `<button onclick="manualPay(${l.id})">Pay Now</button>`
+      : '<span class="muted">Auto</span>';
+    tr.innerHTML = `
+      <td>${l.tenant?.name || '-'}</td>
+      <td>${l.propertyAddress || '-'}</td>
+      <td class="mono">$${l.monthlyRent}</td>
+      <td>${l.autoPayEnabled ? 'Yes' : 'No'}</td>
+      <td>${pill} ${l.lastPaymentError ? '<span class="muted">('+l.lastPaymentError+')</span>':''}</td>
+      <td>${action}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+async function runScheduler(){
+  document.getElementById('msg').textContent = 'Processing...';
+  const r = await fetch('/api/runScheduler',{method:'POST'});
+  const data = await r.json();
+  document.getElementById('msg').textContent = 'Billing run completed';
+  await loadLeases();
+  if (data.some(l => l.lastPaymentStatus === 'PENDING')) {
+    setTimeout(loadLeases, 6000);
+  }
+}
+
+async function manualPay(id){
+  document.getElementById('msg').textContent = 'Processing payment...';
+  await fetch('/api/manualPay?leaseId='+id,{method:'POST'});
+  document.getElementById('msg').textContent = 'Done';
+  await loadLeases();
+  setTimeout(loadLeases, 6000);
+}
+
+loadLeases();
+</script>
+</body>
+</html>
