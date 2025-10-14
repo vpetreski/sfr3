@@ -1,11 +1,14 @@
-# SFR3 MVP — Payment Processing (Spring Boot)
+# SFR3 — Payment Processing
+
+- [Requirements](https://docs.google.com/document/d/1c9pXPJeazTAYL-Fbls8hz_ZIuJ5s_JpdwWfIviwnlFs/edit?tab=t.0#heading=h.ryhuu73w3hcc)
+- [Architecture](https://docs.google.com/document/d/1F62QH--MgGb0cpbPvCJ_7AZ2Hc4MTMZESxtvXqypMHk/edit?usp=sharing)
+- [MVP](https://docs.google.com/document/d/1JF4H7XtYMeJujXITNCt7GGG-lvGvxACSI-1PR6R3APs/edit?usp=sharing)
 
 Minimal, demo-ready MVP that processes rent payments using a **dummy payment provider**.
 - Java **25**, Spring Boot **3.5.6**
 - Gradle Kotlin DSL
 - H2 in-memory DB
 - Static dark-themed UI
-- Package: **com.sfr3.mvp**
 
 ## Run (CLI)
 
@@ -19,7 +22,7 @@ Then open: **http://localhost:8080**
 
 1. File → Open → select the project folder.
 2. Let IntelliJ import Gradle settings.
-3. Run `com.sfr3.mvp.MvpApplication`.
+3. Run `com.sfr3.mvp.PaymentProcessingApp`.
 
 ## Endpoints
 
