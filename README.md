@@ -10,6 +10,8 @@ Minimal, demo-ready MVP that processes rent payments using a **dummy payment pro
 - H2 in-memory DB
 - Static dark-themed UI
 
+![SFR3 MVP demo](demo.gif)
+
 ## Run (CLI)
 
 ```bash
